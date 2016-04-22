@@ -1,6 +1,6 @@
 /*
 ** Target architecture selection.
-** Copyright (C) 2005-2015 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2016 Mike Pall. See Copyright Notice in luajit.h
 */
 
 #ifndef _LJ_ARCH_H
@@ -68,7 +68,10 @@
        defined(__NetBSD__) || defined(__OpenBSD__) || \
        defined(__DragonFly__)) && !defined(__ORBIS__)
 #define LUAJIT_OS	LUAJIT_OS_BSD
-#elif (defined(__sun__) && defined(__svr4__)) || defined(__CYGWIN__)
+#elif (defined(__sun__) && defined(__svr4__))
+#define LUAJIT_OS	LUAJIT_OS_POSIX
+#elif defined(__CYGWIN__)
+#define LJ_TARGET_CYGWIN	1
 #define LUAJIT_OS	LUAJIT_OS_POSIX
 #else
 #define LUAJIT_OS	LUAJIT_OS_OTHER
@@ -137,7 +140,7 @@
 #define LJ_ARCH_NAME		"x86"
 #define LJ_ARCH_BITS		32
 #define LJ_ARCH_ENDIAN		LUAJIT_LE
-#if LJ_TARGET_WINDOWS || __CYGWIN__
+#if LJ_TARGET_WINDOWS || LJ_TARGET_CYGWIN
 #define LJ_ABI_WIN		1
 #else
 #define LJ_ABI_WIN		0
@@ -155,7 +158,7 @@
 #define LJ_ARCH_NAME		"x64"
 #define LJ_ARCH_BITS		64
 #define LJ_ARCH_ENDIAN		LUAJIT_LE
-#if LJ_TARGET_WINDOWS || __CYGWIN__
+#if LJ_TARGET_WINDOWS || LJ_TARGET_CYGWIN
 #define LJ_ABI_WIN		1
 #else
 #define LJ_ABI_WIN		0
@@ -295,6 +298,28 @@
 #define LJ_ARCH_NAME		"mips"
 #define LJ_ARCH_ENDIAN		LUAJIT_BE
 #endif
+
+#if !defined(LJ_ARCH_HASFPU)
+#ifdef __mips_soft_float
+#define LJ_ARCH_HASFPU		0
+#else
+#define LJ_ARCH_HASFPU		1
+#endif
+#endif
+
+/* Temporarily disable features until the code has been merged. */
+#if !defined(LUAJIT_NO_UNWIND) && __GNU_COMPACT_EH__
+#define LUAJIT_NO_UNWIND	1
+#endif
+
+#if !defined(LJ_ABI_SOFTFP)
+#ifdef __mips_soft_float
+#define LJ_ABI_SOFTFP		1
+#else
+#define LJ_ABI_SOFTFP		0
+#endif
+#endif
+
 #define LJ_ARCH_BITS		32
 #define LJ_TARGET_MIPS		1
 #define LJ_TARGET_EHRETREG	4
@@ -302,7 +327,7 @@
 #define LJ_TARGET_MASKSHIFT	1
 #define LJ_TARGET_MASKROT	1
 #define LJ_TARGET_UNIFYROT	2	/* Want only IR_BROR. */
-#define LJ_ARCH_NUMMODE		LJ_NUMMODE_SINGLE
+#define LJ_ARCH_NUMMODE		LJ_NUMMODE_DUAL
 
 #if _MIPS_ARCH_MIPS32R2
 #define LJ_ARCH_VERSION		20
@@ -386,9 +411,6 @@
 #error "No support for PPC/e500 anymore (use LuaJIT 2.0)"
 #endif
 #elif LJ_TARGET_MIPS
-#if defined(__mips_soft_float)
-#error "No support for MIPS CPUs without FPU"
-#endif
 #if defined(_LP64)
 #error "No support for MIPS64"
 #endif
@@ -492,11 +514,14 @@
 #endif
 
 /* Various workarounds for embedded operating systems or weak C runtimes. */
-#if (defined(__ANDROID__) && !defined(LJ_TARGET_X86ORX64)) || defined(__symbian__) || LJ_TARGET_XBOX360 || LJ_TARGET_WINDOWS
+#if defined(__ANDROID__) || defined(__symbian__) || LJ_TARGET_XBOX360 || LJ_TARGET_WINDOWS
 #define LUAJIT_NO_LOG2
 #endif
 #if defined(__symbian__) || LJ_TARGET_WINDOWS
 #define LUAJIT_NO_EXP2
+#endif
+#if LJ_TARGET_CONSOLE || (LJ_TARGET_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0)
+#define LJ_NO_SYSTEM		1
 #endif
 
 #if defined(LUAJIT_NO_UNWIND) || defined(__symbian__) || LJ_TARGET_IOS || LJ_TARGET_PS3 || LJ_TARGET_PS4

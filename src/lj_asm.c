@@ -1,6 +1,6 @@
 /*
 ** IR assembler (SSA IR -> machine code).
-** Copyright (C) 2005-2015 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2016 Mike Pall. See Copyright Notice in luajit.h
 */
 
 #define lj_asm_c
@@ -1609,16 +1609,24 @@ static void asm_ir(ASMState *as, IRIns *ir)
   case IR_ADD: asm_add(as, ir); break;
   case IR_SUB: asm_sub(as, ir); break;
   case IR_MUL: asm_mul(as, ir); break;
-  case IR_DIV: asm_div(as, ir); break;
   case IR_MOD: asm_mod(as, ir); break;
-  case IR_POW: asm_pow(as, ir); break;
   case IR_NEG: asm_neg(as, ir); break;
+#if LJ_SOFTFP
+  case IR_DIV: case IR_POW: case IR_ABS:
+  case IR_ATAN2: case IR_LDEXP: case IR_FPMATH: case IR_TOBIT:
+    lua_assert(0);  /* Unused for LJ_SOFTFP. */
+    break;
+#else
+  case IR_DIV: asm_div(as, ir); break;
+  case IR_POW: asm_pow(as, ir); break;
   case IR_ABS: asm_abs(as, ir); break;
   case IR_ATAN2: asm_atan2(as, ir); break;
   case IR_LDEXP: asm_ldexp(as, ir); break;
+  case IR_FPMATH: asm_fpmath(as, ir); break;
+  case IR_TOBIT: asm_tobit(as, ir); break;
+#endif
   case IR_MIN: asm_min(as, ir); break;
   case IR_MAX: asm_max(as, ir); break;
-  case IR_FPMATH: asm_fpmath(as, ir); break;
 
   /* Overflow-checking arithmetic ops. */
   case IR_ADDOV: asm_addov(as, ir); break;
@@ -1663,7 +1671,6 @@ static void asm_ir(ASMState *as, IRIns *ir)
   case IR_OBAR: asm_obar(as, ir); break;
 
   /* Type conversions. */
-  case IR_TOBIT: asm_tobit(as, ir); break;
   case IR_CONV: asm_conv(as, ir); break;
   case IR_TOSTR: asm_tostr(as, ir); break;
   case IR_STRTO: asm_strto(as, ir); break;
@@ -2143,7 +2150,10 @@ static void asm_setup_regsp(ASMState *as)
 #endif
 #if LJ_TARGET_X86ORX64
     /* Non-constant shift counts need to be in RID_ECX on x86/x64. */
-    case IR_BSHL: case IR_BSHR: case IR_BSAR: case IR_BROL: case IR_BROR:
+    case IR_BSHL: case IR_BSHR: case IR_BSAR:
+      if ((as->flags & JIT_F_BMI2))  /* Except if BMI2 is available. */
+	break;
+    case IR_BROL: case IR_BROR:
       if (!irref_isk(ir->op2) && !ra_hashint(IR(ir->op2)->r)) {
 	IR(ir->op2)->r = REGSP_HINT(RID_ECX);
 	if (inloop)

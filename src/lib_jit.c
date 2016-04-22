@@ -1,6 +1,6 @@
 /*
 ** JIT library.
-** Copyright (C) 2005-2015 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2016 Mike Pall. See Copyright Notice in luajit.h
 */
 
 #define lib_jit_c
@@ -667,6 +667,11 @@ static uint32_t jit_cpudetect(lua_State *L)
       uint32_t fam = (features[0] & 0x0ff00f00);
       if (fam >= 0x00000f00)  /* K8, K10. */
 	flags |= JIT_F_PREFER_IMUL;
+    }
+    if (vendor[0] >= 7) {
+      uint32_t xfeatures[4];
+      lj_vm_cpuid(7, xfeatures);
+      flags |= ((xfeatures[1] >> 8)&1) * JIT_F_BMI2;
     }
 #endif
   }
