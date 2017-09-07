@@ -422,8 +422,8 @@ static GCRef *gc_sweep_str_chain(global_State *g, GCRef *p)
 #if LUAJIT_SMART_STRINGS
       if (strsmart(&o->str)) {
 	/* must match lj_str_new */
-	bloomset(g->strbloom.new[0], o->str.hash >> (sizeof(o->str.hash)*8-6));
-	bloomset(g->strbloom.new[1], o->str.strflags);
+	bloomset(g->strbloom.next[0], o->str.hash >> (sizeof(o->str.hash)*8-6));
+	bloomset(g->strbloom.next[1], o->str.strflags);
       }
 #endif
       p = &o->gch.nextgc;
@@ -650,8 +650,8 @@ static size_t gc_onestep(lua_State *L)
     g->gc.state = GCSsweepstring;  /* Start of sweep phase. */
     g->gc.sweepstr = 0;
 #if LUAJIT_SMART_STRINGS
-    g->strbloom.new[0] = 0;
-    g->strbloom.new[1] = 0;
+    g->strbloom.next[0] = 0;
+    g->strbloom.next[1] = 0;
 #endif
     return 0;
   case GCSsweepstring: {
@@ -660,8 +660,8 @@ static size_t gc_onestep(lua_State *L)
     if (g->gc.sweepstr > g->strmask) {
       g->gc.state = GCSsweep;  /* All string hash chains sweeped. */
 #if LUAJIT_SMART_STRINGS
-      g->strbloom.cur[0] = g->strbloom.new[0];
-      g->strbloom.cur[1] = g->strbloom.new[1];
+      g->strbloom.cur[0] = g->strbloom.next[0];
+      g->strbloom.cur[1] = g->strbloom.next[1];
 #endif
     }
     lua_assert(old >= g->gc.total);

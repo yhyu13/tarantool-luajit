@@ -301,8 +301,8 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 	strflags = 0xc0 | ((h>>(sizeof(h)*8-12))&0x3f);
 	bloomset(g->strbloom.cur[0], h>>(sizeof(h)*8- 6));
 	bloomset(g->strbloom.cur[1], h>>(sizeof(h)*8-12));
-	bloomset(g->strbloom.new[0], h>>(sizeof(h)*8- 6));
-	bloomset(g->strbloom.new[1], h>>(sizeof(h)*8-12));
+	bloomset(g->strbloom.next[0], h>>(sizeof(h)*8- 6));
+	bloomset(g->strbloom.next[1], h>>(sizeof(h)*8-12));
 	h = fh;
       }
     }

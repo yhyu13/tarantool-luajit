@@ -599,7 +599,7 @@ typedef struct global_State {
 #if LUAJIT_SMART_STRINGS
   struct {
     BloomFilter cur[2];
-    BloomFilter new[2];
+    BloomFilter next[2];
   } strbloom;
 #endif
   lua_Alloc allocf;	/* Memory allocator. */
