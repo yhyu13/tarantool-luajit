@@ -171,7 +171,6 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
   GCstr *s;
   GCobj *o;
   MSize len = (MSize)lenx;
-  MSize a, b, h = len;
   uint8_t strflags = 0;
 #if LUAJIT_SMART_STRINGS
   unsigned collisions = 0;
@@ -180,23 +179,9 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
     lj_err_msg(L, LJ_ERR_STROV);
   g = G(L);
   /* Compute string hash. Constants taken from lookup3 hash by Bob Jenkins. */
-  if (len >= 4) {  /* Caveat: unaligned access! */
-    a = lj_getu32(str);
-    h ^= lj_getu32(str+len-4);
-    b = lj_getu32(str+(len>>1)-2);
-    h ^= b; h -= lj_rol(b, 14);
-    b += lj_getu32(str+(len>>2)-1);
-  } else if (len > 0) {
-    a = *(const uint8_t *)str;
-    h ^= *(const uint8_t *)(str+len-1);
-    b = *(const uint8_t *)(str+(len>>1));
-    h ^= b; h -= lj_rol(b, 14);
-  } else {
+  MSize h = lua_hash(str, len);
+  if (h == 0)
     return &g->strempty;
-  }
-  a ^= h; a -= lj_rol(h, 11);
-  b ^= a; b -= lj_rol(a, 25);
-  h ^= b; h -= lj_rol(b, 16);
   /* Check if the string has already been interned. */
   o = gcref(g->strhash[h & g->strmask]);
 #if LUAJIT_SMART_STRINGS

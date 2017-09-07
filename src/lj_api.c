@@ -507,6 +507,16 @@ LUA_API const char *lua_tolstring(lua_State *L, int idx, size_t *len)
   return strdata(s);
 }
 
+LUA_API uint32_t lua_hashstring(lua_State *L, int idx)
+{
+  TValue *o = index2adr(L, idx);
+  lua_assert(tvisstr(o));
+  GCstr *s = strV(o);
+  if (! strsmart(s))
+    return s->hash;
+  return lua_hash(strdata(s), s->len);
+}
+
 LUALIB_API const char *luaL_checklstring(lua_State *L, int idx, size_t *len)
 {
   TValue *o = index2adr(L, idx);
@@ -1290,3 +1300,25 @@ LUA_API void lua_setallocf(lua_State *L, lua_Alloc f, void *ud)
   g->allocf = f;
 }
 
+LUA_API uint32_t lua_hash(const char *str, uint32_t len)
+{
+  uint32_t h = len, a, b;
+  if (len >= 4) {
+    a = lj_getu32(str);
+    h ^= lj_getu32(str+len-4);
+    b = lj_getu32(str+(len>>1)-2);
+    h ^= b; h -= lj_rol(b, 14);
+    b += lj_getu32(str+(len>>2)-1);
+  } else if (len > 0) {
+    a = *str;
+    h ^= *(str+len-1);
+    b = *(str+(len>>1));
+    h ^= b; h -= lj_rol(b, 14);
+  } else {
+    return 0;
+  }
+  a ^= h; a -= lj_rol(h, 11);
+  b ^= a; b -= lj_rol(a, 25);
+  h ^= b; h -= lj_rol(b, 16);
+  return h;
+}
