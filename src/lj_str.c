@@ -178,10 +178,10 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
   if (lenx >= LJ_MAX_STR)
     lj_err_msg(L, LJ_ERR_STROV);
   g = G(L);
+  if (len == 0)
+    return &g->strempty;
   /* Compute string hash. Constants taken from lookup3 hash by Bob Jenkins. */
   MSize h = lua_hash(str, len);
-  if (h == 0)
-    return &g->strempty;
   /* Check if the string has already been interned. */
   o = gcref(g->strhash[h & g->strmask]);
 #if LUAJIT_SMART_STRINGS
