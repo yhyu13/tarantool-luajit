@@ -564,4 +564,10 @@
 #define LJ_52			0
 #endif
 
+/* Enabling pairs/ipairs metamethods for Lua 5.1 */
+#if defined(LUAJIT_ENABLE_PAIRSMM) || defined (LUAJIT_ENABLE_LUA52COMPAT)
+#define LJ_PAIRSMM			1
+#else
+#define LJ_PAIRSMM			0
+#endif
 #endif

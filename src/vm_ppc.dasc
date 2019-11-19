@@ -1454,7 +1454,7 @@ static void build_subroutines(BuildCtx *ctx)
   |  checktab CARG3
   |   lwz PC, FRAME_PC(BASE)
   |  bne ->fff_fallback
-#if LJ_52
+#if LJ_PAIRSMM
   |   lwz TAB:TMP2, TAB:CARG1->metatable
   |  lfd f0, CFUNC:RB->upvalue[0]
   |   cmplwi TAB:TMP2, 0
@@ -1540,7 +1540,7 @@ static void build_subroutines(BuildCtx *ctx)
   |  checktab CARG3
   |   lwz PC, FRAME_PC(BASE)
   |  bne ->fff_fallback
-#if LJ_52
+#if LJ_PAIRSMM
   |   lwz TAB:TMP2, TAB:CARG1->metatable
   |  lfd f0, CFUNC:RB->upvalue[0]
   |   cmplwi TAB:TMP2, 0
