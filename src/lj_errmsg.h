@@ -185,6 +185,13 @@ ERRDEF(FFI_NYIPACKBIT,	"NYI: packed bit fields")
 ERRDEF(FFI_NYICALL,	"NYI: cannot call this C function (yet)")
 #endif
 
+#if LJ_HASMEMPROF
+/* Profiler errors. */
+ERRDEF(PROF_MISUSE,	"profiler misuse")
+ERRDEF(PROF_ISRUNNING,	"profiler is running already")
+ERRDEF(PROF_NOTRUNNING,	"profiler is not running")
+#endif
+
 #undef ERRDEF
 
 /* Detecting unused error messages:
