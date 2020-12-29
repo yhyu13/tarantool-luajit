@@ -228,8 +228,11 @@ int lj_memprof_start(struct lua_State *L, const struct lj_memprof_options *opt)
   lua_assert(opt->buf != NULL);
   lua_assert(opt->len != 0);
 
-  if (mp->state != MPS_IDLE)
+  if (mp->state != MPS_IDLE) {
+    /* Clean up resourses. Ignore possible errors. */
+    opt->on_stop(opt->ctx, opt->buf);
     return PROFILE_ERRRUN;
+  }
 
   /* Discard possible old errno. */
   mp->saved_errno = 0;
@@ -331,7 +334,8 @@ errio:
 int lj_memprof_start(struct lua_State *L, const struct lj_memprof_options *opt)
 {
   UNUSED(L);
-  UNUSED(opt);
+  /* Clean up resourses. Ignore possible errors. */
+  opt->on_stop(opt->ctx, opt->buf);
   return PROFILE_ERRUSE;
 }
 
