@@ -59,7 +59,8 @@ lj_bc.o: lj_bc.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h lj_bc.h \
 lj_bcread.o: lj_bcread.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h \
  lj_gc.h lj_err.h lj_errmsg.h lj_buf.h lj_str.h lj_tab.h lj_bc.h \
  lj_ctype.h lj_cdata.h lualib.h lj_lex.h lj_bcdump.h lj_state.h \
- lj_strfmt.h lj_memprof.h lj_wbuf.h
+ lj_strfmt.h lj_memprof.h lj_wbuf.h lmisclib.h lj_sysprof.h lj_jit.h \
+ lj_ir.h
 lj_bcwrite.o: lj_bcwrite.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h \
  lj_gc.h lj_buf.h lj_str.h lj_bc.h lj_ctype.h lj_dispatch.h lj_jit.h \
  lj_ir.h lj_strfmt.h lj_bcdump.h lj_lex.h lj_err.h lj_errmsg.h lj_vm.h
@@ -175,7 +176,8 @@ lj_opt_split.o: lj_opt_split.c lj_obj.h lua.h luaconf.h lj_def.h \
 lj_parse.o: lj_parse.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h \
  lj_gc.h lj_err.h lj_errmsg.h lj_debug.h lj_buf.h lj_str.h lj_tab.h \
  lj_func.h lj_state.h lj_bc.h lj_ctype.h lj_strfmt.h lj_lex.h lj_parse.h \
- lj_vm.h lj_vmevent.h lj_memprof.h lj_wbuf.h
+ lj_vm.h lj_vmevent.h lj_memprof.h lj_wbuf.h lmisclib.h lj_sysprof.h \
+ lj_jit.h lj_ir.h
 lj_profile.o: lj_profile.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h \
  lj_buf.h lj_gc.h lj_str.h lj_frame.h lj_bc.h lj_debug.h lj_dispatch.h \
  lj_jit.h lj_ir.h lj_trace.h lj_traceerr.h lj_profile.h \
@@ -208,8 +210,8 @@ lj_strscan.o: lj_strscan.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h \
 lj_symtab.o: lj_symtab.c lj_symtab.h lj_wbuf.h lj_def.h lua.h luaconf.h \
  lj_obj.h lj_arch.h
 lj_sysprof.o: lj_sysprof.c lj_arch.h lua.h luaconf.h lj_sysprof.h \
- lj_obj.h lj_def.h lmisclib.h lj_debug.h lj_dispatch.h lj_bc.h lj_jit.h \
- lj_ir.h lj_frame.h lj_trace.h lj_traceerr.h lj_wbuf.h lj_profile_timer.h \
+ lj_jit.h lj_obj.h lj_def.h lj_ir.h lmisclib.h lj_debug.h lj_dispatch.h \
+ lj_bc.h lj_frame.h lj_trace.h lj_traceerr.h lj_wbuf.h lj_profile_timer.h \
  lj_symtab.h
 lj_tab.o: lj_tab.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h lj_gc.h \
  lj_err.h lj_errmsg.h lj_tab.h
@@ -217,7 +219,8 @@ lj_trace.o: lj_trace.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h \
  lj_gc.h lj_err.h lj_errmsg.h lj_debug.h lj_str.h lj_frame.h lj_bc.h \
  lj_state.h lj_ir.h lj_jit.h lj_iropt.h lj_mcode.h lj_trace.h \
  lj_dispatch.h lj_traceerr.h lj_snap.h lj_gdbjit.h lj_record.h lj_asm.h \
- lj_vm.h lj_vmevent.h lj_target.h lj_target_*.h lj_memprof.h lj_wbuf.h
+ lj_vm.h lj_vmevent.h lj_target.h lj_target_*.h lj_memprof.h lj_wbuf.h \
+ lmisclib.h lj_sysprof.h
 lj_udata.o: lj_udata.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h \
  lj_gc.h lj_udata.h
 lj_utils_leb128.o: lj_utils_leb128.c lj_utils.h lj_def.h lua.h luaconf.h
