@@ -1,4 +1,4 @@
-name: "Linux test workflow"
+name: Testing
 
 on:
   push:
@@ -33,25 +33,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ARCH: [aarch64, x86_64]
+        ARCH: [ARM64, x86_64]
         BUILDTYPE: [Debug, Release]
         GC64: [ON, OFF]
+        OS: [Linux, macOS]
         include:
-          - ARCH: aarch64
+          - ARCH: ARM64
+            OS: Linux
+            NAME: Linux/aarch64
             RUNNER: graviton
           - ARCH: x86_64
+            OS: Linux
+            NAME: Linux/x86_64
             RUNNER: ubuntu-20.04-self-hosted
+          - ARCH: ARM64
+            OS: macOS
+            NAME: macOS/M1
+            RUNNER: macos-11-m1
+          - ARCH: x86_64
+            OS: macOS
+            NAME: macOS/x86_64
+            RUNNER: macos-11
           - BUILDTYPE: Debug
             CMAKEFLAGS: -DCMAKE_BUILD_TYPE=Debug -DLUA_USE_ASSERT=ON -DLUA_USE_APICHECK=ON
           - BUILDTYPE: Release
             CMAKEFLAGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo
         exclude:
-          - ARCH: aarch64
+          - ARCH: ARM64
             GC64: OFF
     runs-on: ${{ matrix.RUNNER }}
     name: >
       LuaJIT
-      ${{ matrix.ARCH }}
+      (${{ matrix.NAME }})
       ${{ matrix.BUILDTYPE }}
       GC64:${{ matrix.GC64 }}
     steps:
@@ -59,12 +72,12 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: environment
-        uses: ./.github/actions/environment
-      - name: setup
-        run: |
-          sudo apt -y update
-          sudo apt -y install cmake gcc make perl
+      - name: setup Linux
+        uses: ./.github/actions/setup-linux
+        if: ${{ matrix.OS == 'Linux' }}
+      - name: setup macOS
+        uses: ./.github/actions/setup-macos
+        if: ${{ matrix.OS == 'macOS' }}
       - name: configure
         run: >
           cmake -S . -B ${{ env.BUILDDIR }}
@@ -77,8 +90,8 @@ jobs:
         run: cmake --build . --parallel --target test
         working-directory: ${{ env.BUILDDIR }}
 
-  test-tarantool-x86_64-debug-wo-GC64:
-    name: Tarantool x86_64 Debug GC64:OFF
+  test-tarantool-linux-x86_64-debug-wo-GC64:
+    name: Tarantool (Linux/x86_64) Debug GC64:OFF
     needs: test-luajit
     uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
     with:
@@ -86,8 +99,8 @@ jobs:
       buildtype: Debug
       host: ubuntu-20.04-self-hosted
       revision: ${{ github.sha }}
-  test-tarantool-x86_64-debug-w-GC64:
-    name: Tarantool x86_64 Debug GC64:ON
+  test-tarantool-linux-x86_64-debug-w-GC64:
+    name: Tarantool (Linux/x86_64) Debug GC64:ON
     needs: test-luajit
     uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
     with:
@@ -95,8 +108,8 @@ jobs:
       buildtype: Debug
       host: ubuntu-20.04-self-hosted
       revision: ${{ github.sha }}
-  test-tarantool-x86_64-release-wo-GC64:
-    name: Tarantool x86_64 Release GC64:OFF
+  test-tarantool-linux-x86_64-release-wo-GC64:
+    name: Tarantool (Linux/x86_64) Release GC64:OFF
     needs: test-luajit
     uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
     with:
@@ -104,8 +117,8 @@ jobs:
       buildtype: RelWithDebInfo
       host: ubuntu-20.04-self-hosted
       revision: ${{ github.sha }}
-  test-tarantool-x86_64-release-w-GC64:
-    name: Tarantool x86_64 Release GC64:ON
+  test-tarantool-linux-x86_64-release-w-GC64:
+    name: Tarantool (Linux/x86_64) Release GC64:ON
     needs: test-luajit
     uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
     with:
@@ -113,8 +126,8 @@ jobs:
       buildtype: RelWithDebInfo
       host: ubuntu-20.04-self-hosted
       revision: ${{ github.sha }}
-  test-tarantool-aarch64-debug-w-GC64:
-    name: Tarantool aarch64 Debug GC64:ON
+  test-tarantool-linux-aarch64-debug-w-GC64:
+    name: Tarantool (Linux/aarch64) Debug GC64:ON
     needs: test-luajit
     uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
     with:
@@ -122,12 +135,66 @@ jobs:
       buildtype: Debug
       host: graviton
       revision: ${{ github.sha }}
-  test-tarantool-aarch64-release-w-GC64:
-    name: Tarantool aarch64 Release GC64:ON
+  test-tarantool-linux-aarch64-release-w-GC64:
+    name: Tarantool (Linux/aarch64) Release GC64:ON
     needs: test-luajit
     uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
     with:
       GC64: ON
       buildtype: RelWithDebInfo
       host: graviton
+      revision: ${{ github.sha }}
+  test-tarantool-macos-x86_64-debug-wo-GC64:
+    name: Tarantool (macOS/x86_64) Debug GC64:OFF
+    needs: test-luajit
+    uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
+    with:
+      GC64: OFF
+      buildtype: Debug
+      host: macos-11
+      revision: ${{ github.sha }}
+  test-tarantool-macos-x86_64-debug-w-GC64:
+    name: Tarantool (macOS/x86_64) Debug GC64:ON
+    needs: test-luajit
+    uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
+    with:
+      GC64: ON
+      buildtype: Debug
+      host: macos-11
+      revision: ${{ github.sha }}
+  test-tarantool-macos-x86_64-release-wo-GC64:
+    name: Tarantool (macOS/x86_64) Release GC64:OFF
+    needs: test-luajit
+    uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
+    with:
+      GC64: OFF
+      buildtype: RelWithDebInfo
+      host: macos-11
+      revision: ${{ github.sha }}
+  test-tarantool-macos-x86_64-release-w-GC64:
+    name: Tarantool (macOS/x86_64) Release GC64:ON
+    needs: test-luajit
+    uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
+    with:
+      GC64: ON
+      buildtype: RelWithDebInfo
+      host: macos-11
+      revision: ${{ github.sha }}
+  test-tarantool-macos-m1-debug-w-GC64:
+    name: Tarantool (macOS/M1) Debug GC64:ON
+    needs: test-luajit
+    uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
+    with:
+      GC64: ON
+      buildtype: Debug
+      host: macos-11-m1
+      revision: ${{ github.sha }}
+  test-tarantool-macos-m1-release-w-GC64:
+    name: Tarantool (macOS/M1) Release GC64:ON
+    needs: test-luajit
+    uses: tarantool/tarantool/.github/workflows/luajit-integration.yml@master
+    with:
+      GC64: ON
+      buildtype: RelWithDebInfo
+      host: macos-11-m1
       revision: ${{ github.sha }}
