@@ -188,6 +188,19 @@ if(LUAJIT_ENABLE_CHECKHOOK)
   AppendFlags(TARGET_C_FLAGS -DLUAJIT_ENABLE_CHECKHOOK)
 endif()
 
+# Disable exception unwinding on traces.
+option(LUAJIT_DISABLE_UNWIND_JIT "LuaJIT on-trace exceptions unwinding support" OFF)
+# XXX: On some MacOS versions older than MacOS 13, there is a
+# misbehaviour in libunwind which may potentially lead to an
+# incorrectly unwound stack and segfault. For more info see
+# https://github.com/tarantool/tarantool/issues/8652
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(LUAJIT_DISABLE_UNWIND_JIT ON)
+endif()
+if(LUAJIT_DISABLE_UNWIND_JIT)
+  AppendFlags(TARGET_C_FLAGS -DLUAJIT_DISABLE_UNWIND_JIT)
+endif()
+
 # Disable memory profiler.
 option(LUAJIT_DISABLE_MEMPROF "LuaJIT memory profiler support" OFF)
 if(LUAJIT_DISABLE_MEMPROF)

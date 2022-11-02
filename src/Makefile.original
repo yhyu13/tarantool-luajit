@@ -113,6 +113,9 @@ XCFLAGS=
 # Enable GC64 mode for x64.
 #XCFLAGS+= -DLUAJIT_ENABLE_GC64
 #
+# Disable exception unwinding on traces.
+#XCFLAGS+= -DLUAJIT_DISABLE_UNWIND_JIT
+#
 # Disable the memory profiler.
 #XCFLAGS+= -DLUAJIT_DISABLE_MEMPROF
 #
