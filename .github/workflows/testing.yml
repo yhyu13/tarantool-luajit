@@ -108,12 +108,6 @@ jobs:
         -G Ninja
         ${{ matrix.CMAKEFLAGS }}
         -DLUAJIT_ENABLE_GC64=${{ matrix.GC64 }}
-      # FIXME: This parameter is obsolete, drop it when
-      # CMAKE_EXTRA_PARAMS is activated.
-      GC64: ${{ matrix.GC64 }}
       arch: ${{ matrix.ARCH }}
-      # FIXME: This parameter is obsolete, drop it when
-      # CMAKE_EXTRA_PARAMS is activated.
-      buildtype: ${{ matrix.BUILDTYPE }}
       os: ${{ matrix.OS }}
       revision: ${{ github.sha }}
