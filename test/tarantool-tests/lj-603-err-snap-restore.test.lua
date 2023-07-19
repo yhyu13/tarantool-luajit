@@ -55,16 +55,17 @@ end
 -- restoration from the snapshot.
 if require('ffi').abi('gc64') then
   -- luacheck: no unused
-  local _, _, _, _, _, _
+  local _, _, _, _, _
   do_test()
 else
   -- luacheck: no unused
-  local _, _, _, _
+  local _, _, _, _, _, _, _, _, _, _, _, _, _
   do_test()
 end
 
--- XXX: Don't use `os.exit()` here by intention. When error on
--- snap restoration is raised, `err_unwind()` doesn't stop on
--- correct cframe. So later, on exit from VM this corrupted cframe
--- chain shows itself. `os.exit()` literally calls `exit()` and
--- doesn't show the issue.
+-- XXX: Don't force `test:done()` finish test with `os.exit()` by
+-- intention. When error on snapshot restoration is raised,
+-- `err_unwind()` doesn't stop on the correct cframe. So later, on
+-- exit from VM this corrupted cframe chain shows itself.
+-- `os.exit()` just calls `exit()` and doesn't show the issue.
+test:done(false)

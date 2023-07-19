@@ -57,4 +57,4 @@ end
 test:ok(true, 'IR_RENAME is fine')
 -- `test:check() and 0 or 1` is replaced with just test:check()
 -- here, because otherwise, it affects the renaming process.
-os.exit(test:check())
+test:done(true)

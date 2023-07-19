@@ -38,4 +38,4 @@ collectgarbage()
 
 test:ok(res == false)
 
-os.exit(test:check() and 0 or 1)
+test:done(true)
