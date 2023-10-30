@@ -10,6 +10,8 @@ test:plan(2)
 
 local testoomframe = require('testoomframe')
 
+collectgarbage()
+
 local anchor_memory = {} -- luacheck: no unused
 local function eatchunks(size)
   while true do
@@ -34,6 +36,11 @@ local function chomp()
 end
 
 local st, err = pcall(chomp)
+
+-- Prevent OOM outside of the protected frame.
+anchor_memory = nil
+collectgarbage()
+
 test:ok(st == false, 'on-trace error handled successfully')
 test:like(err, 'not enough memory', 'error is OOM')
 test:done(true)
