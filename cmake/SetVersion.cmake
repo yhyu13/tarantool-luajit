@@ -12,7 +12,8 @@ function(SetVersion version majver minver patchver tweakver prerel)
       COMMAND ${GIT_EXECUTABLE} describe
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
       OUTPUT_VARIABLE vcs_tag)
-    string(STRIP "${vcs_tag}" vcs_tag)
+    #string(STRIP "${vcs_tag}" vcs_tag)
+    set(vcs_tag "v2.1.0-beta3-0-g0000000")
     message(STATUS "[SetVersion] Reading version from VCS: ${vcs_tag}")
   else()
     # Use default version since no git is found in the system or
